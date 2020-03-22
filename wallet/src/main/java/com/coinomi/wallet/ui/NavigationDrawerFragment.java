@@ -21,6 +21,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.coinomi.wallet.R;
+import com.coinomi.wallet.ui.common.BaseFragment;
 
 import java.util.List;
 
@@ -29,7 +30,7 @@ import java.util.List;
  * See the <a href="https://developer.android.com/design/patterns/navigation-drawer.html#Interaction">
  * design guidelines</a> for a complete explanation of the behaviors implemented here.
  */
-public class NavigationDrawerFragment extends Fragment {
+public class NavigationDrawerFragment extends BaseFragment {
     /**
      * Remember the position of the selected item.
      */
@@ -102,7 +103,7 @@ public class NavigationDrawerFragment extends Fragment {
             }
         });
 
-        view.findViewById(R.id.add_coins).setOnClickListener(new View.OnClickListener() {
+       view.findViewById(R.id.add_coins).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 addCoins();
@@ -218,9 +219,6 @@ public class NavigationDrawerFragment extends Fragment {
                 case ITEM_COIN:
                     listener.onAccountSelected((String) item.itemData);
                     break;
-                case ITEM_TRADE:
-                    listener.onTradeSelected();
-                    break;
                 case ITEM_OVERVIEW:
                     listener.onOverviewSelected();
                     break;
@@ -238,6 +236,7 @@ public class NavigationDrawerFragment extends Fragment {
         }
     }
 
+    
     private void addCoins() {
         closeDrawer();
         if (listener != null) {
@@ -314,7 +313,6 @@ public class NavigationDrawerFragment extends Fragment {
     public interface Listener {
         void onAccountSelected(String accountId);
         void onAddCoinsSelected();
-        void onTradeSelected();
         void onOverviewSelected();
     }
 }
