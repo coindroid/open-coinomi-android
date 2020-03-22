@@ -52,7 +52,7 @@ import java.util.concurrent.RejectedExecutionException;
 
 import javax.annotation.Nonnull;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnItemClick;
@@ -88,12 +88,13 @@ public class BalanceFragment extends WalletFragment implements LoaderCallbacks<L
     private final MyHandler handler = new MyHandler(this);
     private final ContentObserver addressBookObserver = new AddressBookObserver(handler);
 
-            @Bind(R.id.transaction_rows) ListView transactionRows;
-    @Bind(R.id.swipeContainer) SwipeRefreshLayout swipeContainer;
-    @Bind(R.id.history_empty) View emptyPocketMessage;
-    @Bind(R.id.account_balance) Amount accountBalance;
-    @Bind(R.id.account_exchanged_balance) Amount accountExchangedBalance;
-    @Bind(R.id.connection_label) TextView connectionLabel;
+    @BindView(R.id.transaction_rows) ListView transactionRows;
+    @BindView(R.id.swipeContainer) SwipeRefreshLayout swipeContainer;
+    @BindView(R.id.history_empty) View emptyPocketMessage;
+    @BindView(R.id.account_balance) Amount accountBalance;
+    @BindView(R.id.account_exchanged_balance) Amount accountExchangedBalance;
+    @BindView(R.id.connection_label) TextView connectionLabel;
+
     private TransactionsListAdapter adapter;
     private Listener listener;
     private ContentResolver resolver;
@@ -142,7 +143,7 @@ public class BalanceFragment extends WalletFragment implements LoaderCallbacks<L
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_balance, container, false);
         addHeaderAndFooterToList(inflater, container, view);
-        ButterKnife.bind(this, view);
+        setBinder(ButterKnife.bind(this, view));
 
         setupSwipeContainer();
 
@@ -165,7 +166,6 @@ public class BalanceFragment extends WalletFragment implements LoaderCallbacks<L
     @Override
     public void onDestroyView() {
         adapter = null;
-        ButterKnife.unbind(this);
         super.onDestroyView();
     }
 
@@ -200,12 +200,6 @@ public class BalanceFragment extends WalletFragment implements LoaderCallbacks<L
         // Initialize header
         View header = inflater.inflate(R.layout.fragment_balance_header, null);
         list.addHeaderView(header, null, true);
-
-        // Set a space in the end of the list
-        View listFooter = new View(inflater.getContext());
-        listFooter.setMinimumHeight(
-                getResources().getDimensionPixelSize(R.dimen.activity_vertical_margin));
-        list.addFooterView(listFooter);
     }
 
     private void setupConnectivityStatus() {
@@ -367,12 +361,22 @@ public class BalanceFragment extends WalletFragment implements LoaderCallbacks<L
 
     @Override
     public void onLoadFinished(Loader<List<AbstractTransaction>> loader, final List<AbstractTransaction> transactions) {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (adapter != null) adapter.replace(transactions);
+        handler.post(() -> {
+            int prevCount = 0;
+            if (adapter != null) {
+                prevCount = adapter.getCount();
+                adapter.replace(transactions);
+            }
+
+            if (adapter != null && prevCount != adapter.getCount()) {
+                loadPartnersData();
             }
         });
+    }
+
+    @Override
+    protected boolean showBothImages() {
+        return adapter.getCount() == 0;
     }
 
     @Override
@@ -513,6 +517,11 @@ public class BalanceFragment extends WalletFragment implements LoaderCallbacks<L
         swipeContainer.setRefreshing(pocket.isLoading());
 
         if (adapter != null) adapter.clearLabelCache();
+    }
+
+    @Override
+    protected boolean isLoadPartnersDataEnabled() {
+        return true;
     }
 
     private void clearLabelCache() {

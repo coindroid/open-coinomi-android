@@ -48,7 +48,6 @@ import javax.annotation.Nullable;
 import static com.coinomi.wallet.ui.NavDrawerItemType.ITEM_COIN;
 import static com.coinomi.wallet.ui.NavDrawerItemType.ITEM_OVERVIEW;
 import static com.coinomi.wallet.ui.NavDrawerItemType.ITEM_SECTION_TITLE;
-import static com.coinomi.wallet.ui.NavDrawerItemType.ITEM_TRADE;
 
 
 /**
@@ -63,7 +62,6 @@ final public class WalletActivity extends BaseWalletActivity implements
 
 
     private static final int REQUEST_CODE_SCAN = 0;
-    private static final int ADD_COIN = 1;
 
     private static final int TX_BROADCAST_OK = 0;
     private static final int TX_BROADCAST_ERROR = 1;
@@ -217,8 +215,6 @@ final public class WalletActivity extends BaseWalletActivity implements
 
     private void createNavDrawerItems() {
         navDrawerItems.clear();
-        NavDrawerItem.addItem(navDrawerItems, ITEM_SECTION_TITLE, getString(R.string.navigation_drawer_services));
-        NavDrawerItem.addItem(navDrawerItems, ITEM_TRADE, getString(R.string.title_activity_trade), R.drawable.trade, null);
         NavDrawerItem.addItem(navDrawerItems, ITEM_SECTION_TITLE, getString(R.string.navigation_drawer_wallet));
         NavDrawerItem.addItem(navDrawerItems, ITEM_OVERVIEW, getString(R.string.title_activity_overview), R.drawable.ic_launcher, null);
         for (WalletAccount account : getAllAccounts()) {
@@ -271,22 +267,6 @@ final public class WalletActivity extends BaseWalletActivity implements
         log.info("Coin selected {}", accountId);
 
         openAccount(accountId);
-    }
-
-    @Override
-    public void onAddCoinsSelected() {
-        startActivityForResult(new Intent(WalletActivity.this, AddCoinsActivity.class), ADD_COIN);
-    }
-
-    @Override
-    public void onTradeSelected() {
-        startActivity(new Intent(WalletActivity.this, TradeActivity.class));
-        // Reselect the last item as the trade is a separate activity
-        if (isOverviewVisible) {
-            navDrawerSelectOverview(true);
-        } else {
-            navDrawerSelectAccount(getAccount(lastAccountId), true);
-        }
     }
 
     @Override
@@ -457,13 +437,6 @@ final public class WalletActivity extends BaseWalletActivity implements
                             showScanFailedMessage(e);
                         }
                     }
-                } else if (requestCode == ADD_COIN) {
-                    if (resultCode == Activity.RESULT_OK) {
-                        final String accountId = intent.getStringExtra(Constants.ARG_ACCOUNT_ID);
-                        createNavDrawerItems();
-                        mNavigationDrawerFragment.setItems(navDrawerItems);
-                        openAccount(accountId);
-                    }
                 }
             }
         });
@@ -615,10 +588,10 @@ final public class WalletActivity extends BaseWalletActivity implements
             sweepWallet(null);
             return true;
         } else if (id == R.id.action_support) {
-            sendSupportEmail();
+            startActivity(new Intent(this, ContactUsActivity.class));
             return true;
         } else if (id == R.id.action_about) {
-            startActivity(new Intent(WalletActivity.this, AboutActivity.class));
+            startActivity(new Intent(this, AboutActivity.class));
             return true;
         }
 

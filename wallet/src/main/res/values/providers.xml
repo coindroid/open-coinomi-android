@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="address_book_provider">%COIN_APP_ID%.address_book</string>
+    <string name="exchange_rates_provider">%COIN_APP_ID%.exchange_rates</string>
+    <string name="exchange_history_provider">%COIN_APP_ID%.exchange_history</string>
+</resources>
